@@ -1,0 +1,44 @@
+* SPICE MODEL INCLUDE FILE
+*
+
+
+*zener diode subcircuit
+.subckt zener_diode 1 2
+Dforward 1 2 1 mA_diode
+Dreverse 2 4 Dideal
+VZ0 4 3 DC 17V
+Rz 1 3 5
+*diode model statements
+.model 1mA_diode D (Is=100pA n=1.679)
+.model ideal_diode D (Is=100pA n=.01)
+.ends zener_diode
+
+** Main Circuit **
+* ac line voltage
+Vac 1 0 sin(0 120V 60Hz)
+
+Lp 2 0 10mH
+Ls 3 0 50uH
+K12 Lp Ls .999
+
+*rectifier diode
+D1 3 4 D1N4148
+C 4 0 100 uF
+R1 4 5 495
+XZ1 5 0 zener_diode
+
+* Ideal Diode Model
+.model Dideal D   (Is=100pA n=0.01 )
+*
+* D14148 Rectifier Diode
+.model D1N4148  D (Is=5.84n N=1.94 Rs=.7017 Ikf=44.17m Xti=3 Eg=1.11 Cjo=.95p
++                  M=.55 Vj=.75 Fc=.5 Isr=11.07n Nr=2.088 Bv=100 Ibv=100u Tt=11.07n)
+*
+* CD4007 Discrete NMOS & PMOS
+
+*Analysis Requests
+.OPTIONS ITL5 = 0
+.TRAN .5ms 200ms 0ms 0.5ms UIC
+
+.plot TRAN V(5,0)
+.end

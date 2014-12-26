@@ -1,0 +1,76 @@
+* SPICE MODEL INCLUDE FILE
+*
+
+*zener diode subcircuit
+.subckt zener_diode 1 4
+Dforward 1 2 Dideal
+Dreverse 4 1 1mA_diode
+VZ0 2 3 DC 17V
+Rz 3 4 10
+*diode model statements
+.model 1mA_diode D (Is=100pA n=1.679)
+.ends zener_diode
+
+** Main Circuit **
+* ac line voltage
+Vac 1 0 sin(0 169.7V 60Hz)
+Rp 1 2 1
+
+*Transoformer
+Lp 2 0 70mH
+Ls 3 0 1mH
+K12 Lp Ls .999999
+
+*Rectifier diode
+D1 3 4 D1N4148
+
+*Filter and Voltage Regulator
+C 4 0 5000u
+R1 4 5 10000
+XZ1 5 0 zener_diode
+
+*Amplifier
+
+*Signals
+Isig 6 5 DC 1m
+Vtr 6 0 AC 1 sin(0 .05V 100 0 0)
+Cc1 6 7 4.5u
+
+*Gate Resistances
+Rg1 5 7 120k
+Rg2 7 0 50k
+
+*Drain 
+Rd 5 8 26k
+
+*Source
+Rs 9 0 4600
+Cs 9 0 15.7u
+
+*NMOS
+M1 8 7 9 9 nnMOS L=10u W=10u
+
+*Load
+Rl 8 0 1e6
+Cl 8 0 10p
+
+* CD4007 Discrete NMOS & PMOS
+.model nnMOS NMOS (LEVEL=2 VTo=1.4 Kp=.6m LAMBDA=0.005)
+
+* Ideal Diode Model
+.model Dideal D   (Is=100pA n=0.01 )
+*
+* D14148 Rectifier Diode
+.model D1N4148  D (Is=5.84n N=1.94 Rs=.7017 Ikf=44.17m Xti=3 Eg=1.11 Cjo=.95p
++                  M=.55 Vj=.75 Fc=.5 Isr=11.07n Nr=2.088 Bv=100 Ibv=100u Tt=11.07n)
+*
+* CD4007 Discrete NMOS & PMOS
+
+*Analysis Requests
+.OPTIONS ITL5 = 0
+.TRAN .01ms 1s 0 .01ms
+.AC DEC 10 .01 10Meg
+
+*.plot TRAN V(5,0)
+.PROBE
+.end
