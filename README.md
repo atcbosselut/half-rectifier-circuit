@@ -1,4 +1,4 @@
-SPICE_Project
+half-rectifier-circuit
 =============
 
 Built a half rectifier circuit
